@@ -317,7 +317,7 @@ func NewImageServiceV2(client *gophercloud.ProviderClient, eo gophercloud.Endpoi
 func NewCESClient(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "ces")
 	sc.ResourceBase = sc.Endpoint
-  return sc, err
+	return sc, err
 }
 
 // NewSmnServiceV2 creates a ServiceClient that may be used to access the v2 Simple Message Notification service.
