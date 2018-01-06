@@ -6,14 +6,14 @@ const (
 	rootPath = "alarms"
 )
 
-func rootURL(c *gophercloud.ServiceClient) string {
+func rootURL(c *gophercloud.ServiceClient1) string {
 	return c.ServiceURL(c.ProjectID, rootPath)
 }
 
-func resourceURL(c *gophercloud.ServiceClient, id string) string {
+func resourceURL(c *gophercloud.ServiceClient1, id string) string {
 	return c.ServiceURL(c.ProjectID, rootPath, id)
 }
 
-func actionURL(c *gophercloud.ServiceClient, id string) string {
+func actionURL(c *gophercloud.ServiceClient1, id string) string {
 	return c.ServiceURL(c.ProjectID, rootPath, id, "action")
 }

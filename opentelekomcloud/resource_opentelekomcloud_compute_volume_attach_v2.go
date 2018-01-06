@@ -152,7 +152,7 @@ func resourceComputeVolumeAttachV2Delete(d *schema.ResourceData, meta interface{
 		Target:     []string{"DETACHED"},
 		Refresh:    resourceComputeVolumeAttachV2DetachFunc(computeClient, instanceId, attachmentId),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      15 * time.Second,
+		Delay:      30 * time.Second,
 		MinTimeout: 15 * time.Second,
 	}
 

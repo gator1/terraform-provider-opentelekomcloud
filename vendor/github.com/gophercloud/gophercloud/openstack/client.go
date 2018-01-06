@@ -131,7 +131,6 @@ func v2auth(client *gophercloud.ProviderClient, endpoint string, options gopherc
 		}
 	}
 	client.TokenID = token.ID
-	client.ProjectID = token.Tenant.ID
 	client.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
 		return V2EndpointURL(catalog, opts)
 	}
@@ -162,18 +161,12 @@ func v3auth(client *gophercloud.ProviderClient, endpoint string, opts tokens3.Au
 		return err
 	}
 
-	project, err := result.ExtractProject()
-	if err != nil {
-		return err
-	}
-
 	catalog, err := result.ExtractServiceCatalog()
 	if err != nil {
 		return err
 	}
 
 	client.TokenID = token.ID
-	client.ProjectID = project.ID
 
 	if opts.CanReauth() {
 		client.ReauthFunc = func() error {
@@ -186,6 +179,65 @@ func v3auth(client *gophercloud.ProviderClient, endpoint string, opts tokens3.Au
 	}
 
 	return nil
+}
+
+func GetProjectId(client *gophercloud.ProviderClient) (string, error) {
+	versions := []*utils.Version{
+		{ID: v20, Priority: 20, Suffix: "/v2.0/"},
+		{ID: v30, Priority: 30, Suffix: "/v3/"},
+	}
+
+	chosen, endpoint, err := utils.ChooseVersion(client, versions)
+	if err != nil {
+		return "", err
+	}
+
+	switch chosen.ID {
+	case v20:
+		return getV2ProjectId(client, endpoint)
+	case v30:
+		return getV3ProjectId(client, endpoint)
+	default:
+		return "", fmt.Errorf("Unrecognized identity version: %s", chosen.ID)
+	}
+}
+
+func getV2ProjectId(client *gophercloud.ProviderClient, endpoint string) (string, error) {
+	v2Client, err := NewIdentityV2(client, gophercloud.EndpointOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	if endpoint != "" {
+		v2Client.Endpoint = endpoint
+	}
+
+	result := tokens2.Get(v2Client, client.TokenID)
+	token, err := result.ExtractToken()
+	if err != nil {
+		return "", err
+	}
+
+	return token.Tenant.ID, nil
+}
+
+func getV3ProjectId(client *gophercloud.ProviderClient, endpoint string) (string, error) {
+	v3Client, err := NewIdentityV3(client, gophercloud.EndpointOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	if endpoint != "" {
+		v3Client.Endpoint = endpoint
+	}
+
+	result := tokens3.Get(v3Client, client.TokenID)
+	project, err := result.ExtractProject()
+	if err != nil {
+		return "", err
+	}
+
+	return project.ID, nil
 }
 
 // NewIdentityV2 creates a ServiceClient that may be used to interact with the v2 identity service.
@@ -238,6 +290,23 @@ func initClientOpts(client *gophercloud.ProviderClient, eo gophercloud.EndpointO
 	sc.ProviderClient = client
 	sc.Endpoint = url
 	sc.Type = clientType
+	return sc, nil
+}
+
+func initClientOpts1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts, clientType string) (*gophercloud.ServiceClient1, error) {
+	pid, e := GetProjectId(client)
+	if e != nil {
+		return nil, e
+	}
+
+	c, e := initClientOpts(client, eo, clientType)
+	if e != nil {
+		return nil, e
+	}
+
+	sc := new(gophercloud.ServiceClient1)
+	sc.ServiceClient = c
+	sc.ProjectID = pid
 	return sc, nil
 }
 
@@ -314,8 +383,11 @@ func NewImageServiceV2(client *gophercloud.ProviderClient, eo gophercloud.Endpoi
 	return sc, err
 }
 
-func NewCESClient(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "ces")
+func NewCESClient(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient1, error) {
+	sc, err := initClientOpts1(client, eo, "ces")
+	if err != nil {
+		return nil, err
+	}
 	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }

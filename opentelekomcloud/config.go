@@ -327,7 +327,7 @@ func (c *Config) getEndpointType() gophercloud.Availability {
 	return gophercloud.AvailabilityPublic
 }
 
-func (c *Config) loadCESClient(region string) (*gophercloud.ServiceClient, error) {
+func (c *Config) loadCESClient(region string) (*gophercloud.ServiceClient1, error) {
 	return openstack.NewCESClient(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),

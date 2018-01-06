@@ -88,7 +88,7 @@ func copyActionOpts(src []ActionOpts) []realActionOpts {
 	return dest
 }
 
-func Create(c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
+func Create(c *gophercloud.ServiceClient1, opts CreateOptsBuilder) (r CreateResult) {
 	opt := opts.(CreateOpts)
 	opts1 := createOpts{
 		AlarmName:               opt.AlarmName,
@@ -112,7 +112,7 @@ func Create(c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResul
 	return
 }
 
-func Get(c *gophercloud.ServiceClient, id string) (r GetResult) {
+func Get(c *gophercloud.ServiceClient1, id string) (r GetResult) {
 	_, r.Err = c.Get(resourceURL(c, id), &r.Body, nil)
 	return
 }
@@ -129,7 +129,7 @@ func (opts UpdateOpts) ToAlarmRuleUpdateMap() (map[string]interface{}, error) {
 	return gophercloud.BuildRequestBody(opts, "")
 }
 
-func Update(c *gophercloud.ServiceClient, id string, opts UpdateOpts) (r UpdateResult) {
+func Update(c *gophercloud.ServiceClient1, id string, opts UpdateOpts) (r UpdateResult) {
 	b, err := opts.ToAlarmRuleUpdateMap()
 	if err != nil {
 		r.Err = err
@@ -141,7 +141,7 @@ func Update(c *gophercloud.ServiceClient, id string, opts UpdateOpts) (r UpdateR
 	return
 }
 
-func Delete(c *gophercloud.ServiceClient, id string) (r DeleteResult) {
+func Delete(c *gophercloud.ServiceClient1, id string) (r DeleteResult) {
 	reqOpt := &gophercloud.RequestOpts{OkCodes: []int{204}}
 	_, r.Err = c.Delete(resourceURL(c, id), reqOpt)
 	return

@@ -139,3 +139,11 @@ func (client *ServiceClient) setMicroversionHeader(opts *RequestOpts) {
 		opts.MoreHeaders["OpenStack-API-Version"] = client.Type + " " + client.Microversion
 	}
 }
+
+type ServiceClient1 struct {
+	// ServiceClient is a reference to the ServiceClient.
+	*ServiceClient
+
+	// ProjectID is the ID of project to which User is authorized.
+	ProjectID string
+}

@@ -300,10 +300,10 @@
 			"revisionTime": "2017-10-18T18:43:25Z"
 		},
 		{
-			"checksumSHA1": "6PqwA1boTJFClUjc9cMXmLLSJTs=",
+			"checksumSHA1": "Rc4+WQskkRRJabi9YcYJCkUh318=",
 			"path": "github.com/gophercloud/gophercloud",
-			"revision": "5a00c1c742bc7e3d29c4e49318e821289fd97623",
-			"revisionTime": "2017-12-08T04:44:24Z"
+			"revision": "170616dac444c393599f0009da3c116f5f7aa67e",
+			"revisionTime": "2017-12-28T20:29:21Z"
 		},
 		{
 			"checksumSHA1": "b7g9TcU1OmW7e2UySYeOAmcfHpY=",
@@ -312,10 +312,10 @@
 			"revisionTime": "2017-10-04T00:41:52Z"
 		},
 		{
-			"checksumSHA1": "24DO5BEQdFKNl1rfWgI2b4+ry5U=",
+			"checksumSHA1": "T4ltorBfbbKKZ2fhdCt/nsT21b0=",
 			"path": "github.com/gophercloud/gophercloud/openstack",
-			"revision": "f8ec1b3d8dea084885975d404872b37be20b3984",
-			"revisionTime": "2017-10-04T00:41:52Z"
+			"revision": "170616dac444c393599f0009da3c116f5f7aa67e",
+			"revisionTime": "2017-12-28T20:29:21Z"
 		},
 		{
 			"checksumSHA1": "Qvow3lLvRJ3AFMbixW7GZk7X19k=",
@@ -328,6 +328,12 @@
 			"path": "github.com/gophercloud/gophercloud/openstack/blockstorage/v2/volumes",
 			"revision": "f8ec1b3d8dea084885975d404872b37be20b3984",
 			"revisionTime": "2017-10-04T00:41:52Z"
+		},
+		{
+			"checksumSHA1": "NqsuczNpd2Upm3O+IduWzq06CTE=",
+			"path": "github.com/gophercloud/gophercloud/openstack/cloudeyeservice/alarmrule",
+			"revision": "170616dac444c393599f0009da3c116f5f7aa67e",
+			"revisionTime": "2017-12-28T20:29:21Z"
 		},
 		{
 			"checksumSHA1": "y49Ur726Juznj85+23ZgqMvehgg=",
@@ -556,6 +562,24 @@
 			"path": "github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth",
 			"revision": "f8ec1b3d8dea084885975d404872b37be20b3984",
 			"revisionTime": "2017-10-04T00:41:52Z"
+		},
+		{
+			"checksumSHA1": "2S29X68Kxca16WwnRGNgCzZ5bsc=",
+			"path": "github.com/gophercloud/gophercloud/openstack/smn/v1/topics",
+			"revision": "170616dac444c393599f0009da3c116f5f7aa67e",
+			"revisionTime": "2017-12-28T20:29:21Z"
+		},
+		{
+			"checksumSHA1": "VukLMrv0xbbX1yE9lQsV1Tl1/eU=",
+			"path": "github.com/gophercloud/gophercloud/openstack/smn/v2/subscriptions",
+			"revision": "170616dac444c393599f0009da3c116f5f7aa67e",
+			"revisionTime": "2017-12-28T20:29:21Z"
+		},
+		{
+			"checksumSHA1": "y89lbj1VxUzEg3eDBu++IbbLOe4=",
+			"path": "github.com/gophercloud/gophercloud/openstack/smn/v2/topics",
+			"revision": "170616dac444c393599f0009da3c116f5f7aa67e",
+			"revisionTime": "2017-12-28T20:29:21Z"
 		},
 		{
 			"checksumSHA1": "TDOZnaS0TO0NirpxV1QwPerAQTY=",

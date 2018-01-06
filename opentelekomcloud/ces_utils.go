@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func chooseCESClient(d *schema.ResourceData, config *Config) (*gophercloud.ServiceClient, error) {
+func chooseCESClient(d *schema.ResourceData, config *Config) (*gophercloud.ServiceClient1, error) {
 	return config.loadCESClient(GetRegion(d, config))
 }
 
