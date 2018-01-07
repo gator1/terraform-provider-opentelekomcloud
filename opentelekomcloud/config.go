@@ -317,6 +317,13 @@ func (c *Config) otcSmnV2Client(region string) (*gophercloud.ServiceClient, erro
 	})
 }
 
+func (c *Config) RdsV1Client(region string) (*gophercloud.ServiceClient, error) {
+	return openstack.NewRdsServiceV1(c.OsClient, gophercloud.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getEndpointType(),
+	})
+}
+
 func (c *Config) getEndpointType() gophercloud.Availability {
 	if c.EndpointType == "internal" || c.EndpointType == "internalURL" {
 		return gophercloud.AvailabilityInternal

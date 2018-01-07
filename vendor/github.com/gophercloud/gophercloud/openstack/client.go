@@ -329,3 +329,14 @@ func NewSmnServiceV2(client *gophercloud.ProviderClient, eo gophercloud.Endpoint
 	sc.Type = "smn"
 	return sc, err
 }
+
+//NewRdsServiceV1 creates the a ServiceClient that may be used to access the v1
+//rds service which is a service of db instances management.
+func NewRdsServiceV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+	newsc, err := initClientOpts(client, eo, "compute")
+	rdsendpoint := strings.Replace(strings.Replace(newsc.Endpoint, "ecs", "rds", 1), "/v2/", "/rds/v1/", 1)
+	newsc.Endpoint = rdsendpoint
+	newsc.ResourceBase = rdsendpoint
+	newsc.Type = "rds"
+	return newsc, err
+}

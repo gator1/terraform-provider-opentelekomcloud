@@ -14,6 +14,7 @@ This script will create the following resources (if enabled):
 * Templates
 * Security Group (Allow ICMP, 80/tcp, 22/tcp)
 * Subscription
+* RDS instances
 
 ## Resource Creation
 
