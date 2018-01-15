@@ -260,6 +260,13 @@ func (c *Config) computeV2Client(region string) (*gophercloud.ServiceClient, err
 	})
 }
 
+func (c *Config) vpcV1Client(region string) (*gophercloud.ServiceClient, error) {
+	return openstack.NewVpcV1(c.OsClient, gophercloud.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getEndpointType()})
+
+}
+
 func (c *Config) dnsV2Client(region string) (*gophercloud.ServiceClient, error) {
 	return openstack.NewDNSV2(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
@@ -317,6 +324,13 @@ func (c *Config) otcSmnV2Client(region string) (*gophercloud.ServiceClient, erro
 	})
 }
 
+func (c *Config) RdsV1Client(region string) (*gophercloud.ServiceClient, error) {
+	return openstack.NewRdsServiceV1(c.OsClient, gophercloud.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getEndpointType(),
+	})
+}
+
 func (c *Config) getEndpointType() gophercloud.Availability {
 	if c.EndpointType == "internal" || c.EndpointType == "internalURL" {
 		return gophercloud.AvailabilityInternal
@@ -327,7 +341,7 @@ func (c *Config) getEndpointType() gophercloud.Availability {
 	return gophercloud.AvailabilityPublic
 }
 
-func (c *Config) loadCESClient(region string) (*gophercloud.ServiceClient, error) {
+func (c *Config) loadCESClient(region string) (*gophercloud.ServiceClient1, error) {
 	return openstack.NewCESClient(c.OsClient, gophercloud.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getEndpointType(),

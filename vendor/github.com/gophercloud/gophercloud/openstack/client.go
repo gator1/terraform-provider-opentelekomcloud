@@ -5,12 +5,11 @@ import (
 	"net/url"
 	"reflect"
 
-	"strings"
-
 	"github.com/gophercloud/gophercloud"
 	tokens2 "github.com/gophercloud/gophercloud/openstack/identity/v2/tokens"
 	tokens3 "github.com/gophercloud/gophercloud/openstack/identity/v3/tokens"
 	"github.com/gophercloud/gophercloud/openstack/utils"
+	"strings"
 )
 
 const (
@@ -131,7 +130,6 @@ func v2auth(client *gophercloud.ProviderClient, endpoint string, options gopherc
 		}
 	}
 	client.TokenID = token.ID
-	client.ProjectID = token.Tenant.ID
 	client.EndpointLocator = func(opts gophercloud.EndpointOpts) (string, error) {
 		return V2EndpointURL(catalog, opts)
 	}
@@ -162,18 +160,12 @@ func v3auth(client *gophercloud.ProviderClient, endpoint string, opts tokens3.Au
 		return err
 	}
 
-	project, err := result.ExtractProject()
-	if err != nil {
-		return err
-	}
-
 	catalog, err := result.ExtractServiceCatalog()
 	if err != nil {
 		return err
 	}
 
 	client.TokenID = token.ID
-	client.ProjectID = project.ID
 
 	if opts.CanReauth() {
 		client.ReauthFunc = func() error {
@@ -186,6 +178,65 @@ func v3auth(client *gophercloud.ProviderClient, endpoint string, opts tokens3.Au
 	}
 
 	return nil
+}
+
+func GetProjectId(client *gophercloud.ProviderClient) (string, error) {
+	versions := []*utils.Version{
+		{ID: v20, Priority: 20, Suffix: "/v2.0/"},
+		{ID: v30, Priority: 30, Suffix: "/v3/"},
+	}
+
+	chosen, endpoint, err := utils.ChooseVersion(client, versions)
+	if err != nil {
+		return "", err
+	}
+
+	switch chosen.ID {
+	case v20:
+		return getV2ProjectId(client, endpoint)
+	case v30:
+		return getV3ProjectId(client, endpoint)
+	default:
+		return "", fmt.Errorf("Unrecognized identity version: %s", chosen.ID)
+	}
+}
+
+func getV2ProjectId(client *gophercloud.ProviderClient, endpoint string) (string, error) {
+	v2Client, err := NewIdentityV2(client, gophercloud.EndpointOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	if endpoint != "" {
+		v2Client.Endpoint = endpoint
+	}
+
+	result := tokens2.Get(v2Client, client.TokenID)
+	token, err := result.ExtractToken()
+	if err != nil {
+		return "", err
+	}
+
+	return token.Tenant.ID, nil
+}
+
+func getV3ProjectId(client *gophercloud.ProviderClient, endpoint string) (string, error) {
+	v3Client, err := NewIdentityV3(client, gophercloud.EndpointOpts{})
+	if err != nil {
+		return "", err
+	}
+
+	if endpoint != "" {
+		v3Client.Endpoint = endpoint
+	}
+
+	result := tokens3.Get(v3Client, client.TokenID)
+	project, err := result.ExtractProject()
+	if err != nil {
+		return "", err
+	}
+
+	return project.ID, nil
 }
 
 // NewIdentityV2 creates a ServiceClient that may be used to interact with the v2 identity service.
@@ -241,6 +292,23 @@ func initClientOpts(client *gophercloud.ProviderClient, eo gophercloud.EndpointO
 	return sc, nil
 }
 
+func initClientOpts1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts, clientType string) (*gophercloud.ServiceClient1, error) {
+	pid, e := GetProjectId(client)
+	if e != nil {
+		return nil, e
+	}
+
+	c, e := initClientOpts(client, eo, clientType)
+	if e != nil {
+		return nil, e
+	}
+
+	sc := new(gophercloud.ServiceClient1)
+	sc.ServiceClient = c
+	sc.ProjectID = pid
+	return sc, nil
+}
+
 // NewObjectStorageV1 creates a ServiceClient that may be used with the v1 object storage package.
 func NewObjectStorageV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
 	return initClientOpts(client, eo, "object-store")
@@ -255,6 +323,18 @@ func NewComputeV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpt
 func NewNetworkV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "network")
 	sc.ResourceBase = sc.Endpoint + "v2.0/"
+	return sc, err
+}
+
+// NewVpcV1 creates a ServiceClient that may be used with the v1 VPC for OTC.
+func NewVpcV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+	pid, e := GetProjectId(client)
+	if e != nil {
+		return nil, e
+	}
+
+	sc, err := initClientOpts(client, eo, "network")
+	sc.ResourceBase = sc.Endpoint + "v1/" + pid + "/"
 	return sc, err
 }
 
@@ -314,8 +394,11 @@ func NewImageServiceV2(client *gophercloud.ProviderClient, eo gophercloud.Endpoi
 	return sc, err
 }
 
-func NewCESClient(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "ces")
+func NewCESClient(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient1, error) {
+	sc, err := initClientOpts1(client, eo, "ces")
+	if err != nil {
+		return nil, err
+	}
 	sc.ResourceBase = sc.Endpoint
 	return sc, err
 }
@@ -328,4 +411,15 @@ func NewSmnServiceV2(client *gophercloud.ProviderClient, eo gophercloud.Endpoint
 	sc.ResourceBase = sc.Endpoint + "notifications/"
 	sc.Type = "smn"
 	return sc, err
+}
+
+//NewRdsServiceV1 creates the a ServiceClient that may be used to access the v1
+//rds service which is a service of db instances management.
+func NewRdsServiceV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+	newsc, err := initClientOpts(client, eo, "compute")
+	rdsendpoint := strings.Replace(strings.Replace(newsc.Endpoint, "ecs", "rds", 1), "/v2/", "/rds/v1/", 1)
+	newsc.Endpoint = rdsendpoint
+	newsc.ResourceBase = rdsendpoint
+	newsc.Type = "rds"
+	return newsc, err
 }
