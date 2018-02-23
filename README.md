@@ -7,6 +7,19 @@ Terraform OpenTelekomCloud Provider
 
 <img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px">
 
+Terraform-Provider-OpenTelekomcloud is a Terraform Provider for OpenTelekomcloud.
+It is based on [Terraform-Provider-OpenStack](https://github.com/terraform-providers/terraform-provider-openstack)
+which is a standard Terraform OpenStack Provider. Terraform-Provider-OpenTelekomcloud has renamed OpenStack with OpenTelekomcloud
+and added some enhancements to interact with the many resources supported by OpenTelekomcloud.
+
+## Enhancements
+
+- **ces**: cloud eye service
+- **rds**: relational database service
+- **obs**: object storage service
+- **elb**: elastic load balance service
+- **smn**: simple message notification service
+
 Requirements
 ------------
 
@@ -112,3 +125,8 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 ```sh
 $ make testacc
 ```
+
+## License
+
+Terraform-Provider-OpenTelekomcloud is under the Mozilla Public License 2.0. See the [LICENSE](LICENSE) file for details.
+
